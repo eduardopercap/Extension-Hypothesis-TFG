@@ -199,7 +199,7 @@ function dibujarGraficoSankey(grafo, preguntas,examenes){
     var dvdesplegables=d3.select("#dvsankey").append("div").attr("id","dvdesplegables").style("width", (width + margin.left + margin.right)+'px');
     var svgbotonesEliminar=d3.select("#dvsankey").append("svg").attr("id","svgbotonesEliminar").attr("width", width + margin.left + margin.right)
         .attr("height",'18px');
-    d3.select("#dv").append("button").attr("id","refrescar").text("Refrescar").on("click", (d) => dibujarGraficoSankey(_.clone(graphOriginal),_.clone(preguntasExamen),examenes));
+    d3.select("#dv").append("button").attr("id","refrescar").text("Refrescar").on("click", (d) => dibujarGraficoSankey(_.clone(graphOriginal),_.clone(preguntasExamen),_.clone(restoExamenes)));
 
 
     // Insertamos el SGV y establecemos sus medidas
@@ -361,11 +361,11 @@ function dibujarGraficoSankey(grafo, preguntas,examenes){
 
 
         //Añade un boton con la imagen previa para eliminar una columna de nodos
-        svgbotonesEliminar.selectAll('rect')
+        svgbotonesEliminar.selectAll('rect.buttonPregunta')
             .data(preguntas)
             .enter()
             .append("rect")
-            .attr("class","button")
+            .attr("class","buttonPregunta")
             .attr("fill", "url(#venus)")
             .attr("x", (d,i)=>posicion[i]+10)
             .attr("width", 30)
@@ -389,6 +389,35 @@ function dibujarGraficoSankey(grafo, preguntas,examenes){
                 }
             });
 
+
+
+        //Añade un boton con la imagen previa para eliminar una columna de nodos
+        svgbotonesEliminar.selectAll('rect.buttonExamen')
+            .data(examenes)
+            .enter()
+            .append("rect")
+            .attr("class","buttonExamen")
+            .attr("fill", "url(#venus)")
+            .attr("x", (d,i)=>posicion[preguntas.length+i+1]+10)
+            .attr("width", 30)
+            .attr("height", 20)
+            .attr("rx", 10)
+            .attr("ry", 10)
+            .on('mouseover', tooltip.show)
+            .on('mouseout', tooltip.hide)
+            .on("click", function (d,i) {
+                    _.remove(examenes, function(n) {
+                        return n==d ;
+                    });
+                    var nodes= _.filter(grafo.nodes, (nodo) => (!nodo.id.includes(d)));
+                    var grupos=_.concat(_.clone(group),_.clone(_.clone(restoExamenes)));
+                    var enlacesEjercicios= _.filter(graphCopy.links, (link) => (!_.includes(grupos,link.source.slice(0,8))));
+                    var enlacesExamenes=actualizarLinksExamenes(examenes);
+                    linksRestoExamenes= _.clone(enlacesExamenes);
+                    nodesRestoExamenes= _.clone(nodes);
+                    var nuevoGrafo= {nodes: nodes, links:  _.concat(enlacesEjercicios,enlacesExamenes)};
+                    dibujarGraficoSankey(nuevoGrafo,preguntas,examenes);
+            });
 
 
         // Añadimos los enlaces (links) en el diagrama

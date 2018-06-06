@@ -84,14 +84,14 @@ circle {
     font-weight: bold;
 }
 
-.button {
+.buttonPregunta, .buttonExamen {
     /*   fill: lightgrey; */
     opacity: 0.5;
     cursor:  pointer;
     margin: 20px;
 }
 
-.button:hover {
+.buttonPregunta:hover, .buttonExamen:hover {
     opacity: 1.0;
 }
 
